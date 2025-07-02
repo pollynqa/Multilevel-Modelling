@@ -1,0 +1,136 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+read.csv("data/theta_ds (1).csv")
+str(data)
+```
+```{r}
+install.packages("sjPlot")
+
+install.packages(c("lme4", "lmerTest"))
+
+library(lme4)
+library(lmerTest)
+```
+```{r}
+df$FIQ_ELC_scaled <- scale(df$FIQ_ELC)
+df$Age_yrs_scaled <- scale(df$Age_yrs)
+df$household_income_scaled <- scale(df$household_income)
+```
+```{r}
+library(lmerTest)
+ model1 <- lmer(FIQ_ELC ~ can.pow + (1 | id), data = df)
+
+summary(model1)
+
+```
+```{r}
+library(ggplot2)
+ggplot(df, aes(x = can.pow, y = FIQ_ELC_scaled)) +
+  geom_point(alpha = 0.6) +                        # scatter points
+  geom_smooth(method = "lm", color = "blue") +     # regression line
+  labs(title = "Relationship Between Theta Power and IQ",
+       x = "Theta Power",
+       y = "Full-Scale IQ (Standardized)") +
+  theme_minimal()
+```
+
+```{r}
+library(lmerTest)
+
+m_2 <- lmer(FIQ_ELC ~ can.pow * cond + reg + (1 + can.pow | id), data = df)
+summary(m_2)
+```
+```{r}
+library(lmerTest)
+m_3 <- lmer(FIQ_ELC_scaled ~ can.pow * Age_yrs + can.pow * household_income + (1 + can.pow |id), data = df)
+summary(m_3)
+```
+```{r}
+library(ggeffects)
+library(ggplot2) 
+library(ggeffects)
+
+library(ggeffects)
+
+ggplot(pred_age, aes(x = group, y = predicted)) +
+  geom_point(size = 4, color = "darkgreen") +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.1, color = "darkgreen") +
+  labs(
+    title = "Predicted FIQ_ELC_scaled by Age Group\n(at mean can.pow)",
+    x = "Age Group (years)",
+    y = "Predicted FIQ_ELC_scaled"
+  ) +
+  theme_minimal()
+
+
+
+```
+```{r}
+ggplot(pred_income, aes(x = group, y = predicted)) +
+  geom_point(size = 4, color = "steelblue") +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.1, color = "steelblue") +
+  labs(
+    title = "Figure 2. Predicted FIQ_ELC_scaled by Household Income\n(at mean can.pow)",
+    x = "Household Income Group",
+    y = "Predicted FIQ_ELC_scaled"
+  ) +
+  theme_minimal()
+
+
+```
+
+```{r}
+library(ggplot2)
+
+# Basic scatter plot
+ggplot(df, aes(x = can.pow, y = FIQ_ELC)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  labs(title = "FIQ_ELC vs. can.pow",
+       x = "can.pow",
+       y = "FIQ_ELC") +
+  theme_minimal()
+
+```
+
+```{r}
+library(sjPlot)
+
+tab_model(model1,
+          show.ci = FALSE,
+          show.re.var = TRUE,
+          title = "Mixed-Effects Model: FIQ_ELC ~ can.pow + (1 | id)")
+
+```
+
+
+```{r}
+library(ggplot2)
+ggplot(df, aes(x = can.pow, y = FIQ_ELC, color = cond)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE) +
+  facet_wrap(~ reg) +
+  labs(
+    title = "Interaction of can.pow and condition by brain region",
+    x = "Canonical Power (can.pow)",
+    y = "FIQ_ELC",
+    color = "Condition"
+  ) +
+  theme_minimal()
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
